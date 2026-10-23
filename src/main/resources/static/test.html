@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste da API SENAI</title>
+</head>
+<body>
+<h1>Teste da API - Serviços</h1>
+
+<h2>Cadastrar serviço</h2>
+
+<form id="formServico">
+    <label>Nome:</label><br>
+    <input type="text" id="nome" required><br><br>
+
+    <label>Descrição:</label><br>
+    <input type="text" id="descricao" required><br><br>
+
+    <label>Preço:</label><br>
+    <input type="number" id="preco" step="0.01" min="0" required><br><br>
+
+    <label>Duração em minutos:</label><br>
+    <input type="number" id="duracao" min="1" required><br><br>
+
+    <button type="submit">Cadastrar serviço</button>
+</form>
+
+<p id="mensagem"></p>
+
+<hr>
+
+<h2>Serviços cadastrados</h2>
+<button onclick="listarServicos()">Atualizar lista</button>
+<ul id="lista"></ul>
+
+<script>
+    const API = "/servicos";
+
+    async function listarServicos() {
+        const lista = document.getElementById("lista");
+        const mensagem = document.getElementById("mensagem");
+
+        try {
+            const resposta = await fetch(API);
+
+            if (!resposta.ok) {
+                throw new Error("Erro HTTP " + resposta.status);
+            }
+
+            const servicos = await resposta.json();
+            lista.innerHTML = "";
+
+            if (servicos.length === 0) {
+                lista.innerHTML = "<li>Nenhum serviço cadastrado.</li>";
+                return;
+            }
+
+            servicos.forEach(servico => {
+                const item = document.createElement("li");
+                item.textContent =
+                    servico.nome + " — " +
+                    servico.descricao + " — R$ " +
+                    Number(servico.preco).toFixed(2) + " — " +
+                    servico.duracaoMinutos + " minutos";
+                lista.appendChild(item);
+            });
+        } catch (erro) {
+            mensagem.textContent =
+                "Erro ao listar serviços: " + erro.message;
+        }
+    }
+
+    document.getElementById("formServico")
+        .addEventListener("submit", async function(evento) {
+            evento.preventDefault();
+
+            const servico = {
+                nome: document.getElementById("nome").value,
+                descricao: document.getElementById("descricao").value,
+                preco: Number(document.getElementById("preco").value),
+                duracaoMinutos:
+                    Number(document.getElementById("duracao").value)
+            };
+
+            const mensagem = document.getElementById("mensagem");
+
+            try {
+                const resposta = await fetch(API, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(servico)
+                });
+
+                if (!resposta.ok) {
+                    throw new Error("Erro HTTP " + resposta.status);
+                }
+
+                mensagem.textContent = "Serviço cadastrado com sucesso!";
+                this.reset();
+                await listarServicos();
+            } catch (erro) {
+                mensagem.textContent =
+                    "Erro ao cadastrar: " + erro.message;
+            }
+        });
+
+    listarServicos();
+</script>
+
+
+<hr>
+
+<h2>Cadastrar funcionário</h2>
+
+<form id="formFuncionario">
+    <label>Nome:</label><br>
+    <input type="text" id="funcNome" required><br><br>
+
+    <label>Cargo:</label><br>
+    <input type="text" id="funcCargo" required><br><br>
+
+    <label>E-mail:</label><br>
+    <input type="email" id="funcEmail" required><br><br>
+
+    <label>Data de admissão:</label><br>
+    <input type="date" id="funcData" required><br><br>
+
+    <button type="submit">Cadastrar funcionário</button>
+</form>
+
+<p id="mensagemFuncionario"></p>
+
+<h2>Funcionários cadastrados</h2>
+<button type="button" onclick="listarFuncionarios()">Atualizar funcionários</button>
+<ul id="listaFuncionarios"></ul>
+
+<script>
+    async function listarFuncionarios() {
+        const lista = document.getElementById("listaFuncionarios");
+        const mensagem = document.getElementById("mensagemFuncionario");
+
+        try {
+            const resposta = await fetch("/funcionarios");
+
+            if (!resposta.ok) {
+                throw new Error("Erro HTTP " + resposta.status);
+            }
+
+            const funcionarios = await resposta.json();
+            lista.innerHTML = "";
+
+            if (funcionarios.length === 0) {
+                lista.innerHTML = "<li>Nenhum funcionário cadastrado.</li>";
+                return;
+            }
+
+            funcionarios.forEach(funcionario => {
+                const item = document.createElement("li");
+                item.textContent =
+                    funcionario.nome + " — " +
+                    funcionario.cargo + " — " +
+                    funcionario.email + " — " +
+                    funcionario.dataAdmissao;
+                lista.appendChild(item);
+            });
+        } catch (erro) {
+            mensagem.textContent = "Erro ao listar: " + erro.message;
+        }
+    }
+
+    document.getElementById("formFuncionario")
+        .addEventListener("submit", async function(evento) {
+            evento.preventDefault();
+
+            const funcionario = {
+                nome: document.getElementById("funcNome").value,
+                cargo: document.getElementById("funcCargo").value,
+                email: document.getElementById("funcEmail").value,
+                dataAdmissao: document.getElementById("funcData").value
+            };
+
+            const mensagem = document.getElementById("mensagemFuncionario");
+
+            try {
+                const resposta = await fetch("/funcionarios", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(funcionario)
+                });
+
+                if (!resposta.ok) {
+                    throw new Error("Erro HTTP " + resposta.status);
+                }
+
+                mensagem.textContent = "Funcionário cadastrado com sucesso!";
+                this.reset();
+                await listarFuncionarios();
+            } catch (erro) {
+                mensagem.textContent = "Erro ao cadastrar: " + erro.message;
+            }
+        });
+
+    listarFuncionarios();
+</script>
+
+</body>
+</html>
