@@ -1,4 +1,4 @@
-# Sistema de Gestão — SENAI
+# Sistema de Gestão
 
 API REST desenvolvida em Java com Spring Boot. O sistema reúne operações de cadastro, consulta, atualização e exclusão de dados relacionados à gestão de clientes, animais, produtos, fornecedores, funcionários e serviços.
 
